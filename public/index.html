@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prompt to SQL and Query Executor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Prompt to SQL and Query Executor</h1>
+
+    <!-- Input for user prompt -->
+    <div class="section">
+        <label for="prompt">Enter your prompt:</label><br>
+        <textarea id="prompt" placeholder="Describe what you want to query..."></textarea>
+    </div>
+
+    <button onclick="handleSubmit()">Submit</button>
+
+    <!-- Section to display the generated SQL query -->
+    <div class="section">
+        <h2>Generated SQL Query</h2>
+        <pre id="sqlQuery">Your SQL will appear here...</pre>
+    </div>
+
+    <!-- Section to display the query result -->
+    <div class="section">
+        <h2>Query Result</h2>
+        <pre id="result">Your query result will appear here...</pre>
+    </div>
+
+    <script>
+        async function handleSubmit() {
+            const promptText = document.getElementById('prompt').value.trim();
+            if (!promptText) {
+                alert('Please enter a prompt.');
+                return;
+            }
+
+            // Generate SQL query from the prompt
+            document.getElementById('sqlQuery').innerText = 'Generating SQL query...';
+            const generateResponse = await fetch('/generate_sql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: promptText })
+            });
+            const generateData = await generateResponse.json();
+            const sql = generateData.sql;
+            document.getElementById('sqlQuery').innerText = sql;
+
+            // Execute the generated SQL query
+            document.getElementById('result').innerText = 'Executing SQL query...';
+            const executeResponse = await fetch('/execute_sql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: sql })
+            });
+            const executeData = await executeResponse.json();
+            document.getElementById('result').innerText = JSON.stringify(executeData.result, null, 2);
+        }
+    </script>
+</body>
+
+</html>
