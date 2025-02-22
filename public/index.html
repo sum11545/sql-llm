@@ -62,7 +62,9 @@
             const generateResponse = await fetch('/generate_sql', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: promptText })
+                body: JSON.stringify({
+                    prompt: `You are a SQL generator. Given the following request, output only a valid SQL query for PostgreSQL without any explanation or extra text. Request: "${promptText}"`
+                })
             });
             const generateData = await generateResponse.json();
             const sql = generateData.sql;

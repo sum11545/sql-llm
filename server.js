@@ -1,5 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch'); // Make sure you're using node-fetch v2 (CommonJS)
+const fetch = require('node-fetch'); // Ensure you're using node-fetch v2 (CommonJS)
 const { Pool } = require('pg');
 require('dotenv').config();
 
@@ -68,8 +68,15 @@ app.post('/generate_sql', async (req, res) => {
 
 // Endpoint to execute the SQL query on Postgres.
 app.post('/execute_sql', async (req, res) => {
-  const sql = req.body.query;
-  console.log('sql', sql);
+  let sql = req.body.query;
+  console.log('Original SQL:', sql);
+  
+  // Sanitize the SQL: Remove any lines that start with "USE" (PostgreSQL does not support USE).
+  sql = sql.split('\n')
+           .filter(line => !line.trim().toUpperCase().startsWith("USE"))
+           .join('\n');
+  console.log('Sanitized SQL:', sql);
+  
   try {
     const result = await pool.query(sql);
     res.json({ result: result.rows });
